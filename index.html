@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XOX Game</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background: radial-gradient(circle, #ffafbd, #ffc3a0, #a1c4fd, #c2e9fb);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 3rem;
+      color: white;
+      text-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      from {
+        text-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+      }
+      to {
+        text-shadow: 4px 4px 20px rgba(255, 255, 255, 0.8);
+      }
+    }
+
+    .start-button {
+      padding: 15px 50px;
+      font-size: 1.5rem;
+      color: white;
+      background: linear-gradient(90deg, #ff758c, #ff7eb3);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      animation: bounce 1.5s infinite alternate;
+    }
+
+    .start-button:hover {
+      transform: scale(1.1);
+    }
+
+    @keyframes bounce {
+      from {
+        transform: translateY(0);
+      }
+      to {
+        transform: translateY(-10px);
+      }
+    }
+
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 15px;
+      margin: 20px auto;
+      opacity: 0;
+      transform: scale(0);
+      transition: opacity 1s, transform 1s;
+    }
+
+    .game-board.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: bold;
+      background: white;
+      color: #444;
+      border: 3px solid #ddd;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      transition: transform 0.3s ease, background 0.5s ease;
+    }
+
+    .cell:hover {
+      transform: scale(1.1);
+      background: #ffecd2;
+    }
+
+    .cell.taken {
+      pointer-events: none;
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from {
+        transform: scale(1);
+      }
+      to {
+        transform: scale(1.05);
+      }
+    }
+
+    .result-bar {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: white;
+      text-align: center;
+      z-index: 9999;
+    }
+
+    .result-bar h1 {
+      font-size: 4rem;
+      margin: 20px 0;
+      animation: title-glow 2s infinite alternate;
+    }
+
+    @keyframes title-glow {
+      from {
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+      }
+      to {
+        text-shadow: 0 0 30px rgba(255, 255, 255, 1);
+      }
+    }
+
+    .replay-button {
+      padding: 15px 50px;
+      font-size: 1.5rem;
+      background: linear-gradient(45deg, #74ebd5, #acb6e5);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .replay-button:hover {
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>XOX Game</h1>
+  <button class="start-button" id="startButton">Start Game</button>
+  <div class="game-board" id="gameBoard">
+    <div class="cell" data-index="0"></div>
+    <div class="cell" data-index="1"></div>
+    <div class="cell" data-index="2"></div>
+    <div class="cell" data-index="3"></div>
+    <div class="cell" data-index="4"></div>
+    <div class="cell" data-index="5"></div>
+    <div class="cell" data-index="6"></div>
+    <div class="cell" data-index="7"></div>
+    <div class="cell" data-index="8"></div>
+  </div>
+  <div class="result-bar" id="resultBar">
+    <h1 id="resultMessage"></h1>
+    <button class="replay-button" id="replayButton">Replay</button>
+  </div>
+
+  <script>
+    const startButton = document.getElementById("startButton");
+    const gameBoard = document.getElementById("gameBoard");
+    const resultBar = document.getElementById("resultBar");
+    const resultMessage = document.getElementById("resultMessage");
+    const replayButton = document.getElementById("replayButton");
+    const cells = Array.from(document.querySelectorAll(".cell"));
+
+    let currentPlayer = "🥰";
+    let boardState = Array(9).fill(null);
+    let isGameActive = true;
+
+    const winningCombinations = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6]
+    ];
+
+    startButton.addEventListener("click", () => {
+      startButton.style.display = "none";
+      gameBoard.classList.add("active");
+    });
+
+    cells.forEach(cell => {
+      cell.addEventListener("click", () => {
+        const index = cell.getAttribute("data-index");
+
+        if (!boardState[index] && isGameActive) {
+          boardState[index] = currentPlayer;
+          cell.textContent = currentPlayer;
+          cell.classList.add("taken");
+          checkWinner();
+          currentPlayer = currentPlayer === "🥰" ? "❤️" : "🥰";
+        }
+      });
+    });
+
+    replayButton.addEventListener("click", () => {
+      resetGame();
+    });
+
+    function checkWinner() {
+      for (const combination of winningCombinations) {
+        const [a, b, c] = combination;
+        if (boardState[a] && boardState[a] === boardState[b] && boardState[a] === boardState[c]) {
+          showResult(`${boardState[a]} Wins!`);
+          return;
+        }
+      }
+
+      if (boardState.every(cell => cell)) {
+        showResult("It's a Draw!");
+      }
+    }
+
+    function showResult(message) {
+      isGameActive = false;
+      resultMessage.textContent = message;
+      resultBar.style.display = "flex";
+    }
+
+    function resetGame() {
+      boardState.fill(null);
+      cells.forEach(cell => {
+        cell.textContent = "";
+        cell.classList.remove("taken");
+      });
+      currentPlayer = "🥰";
+      isGameActive = true;
+      resultBar.style.display = "none";
+    }
+  </script>
+</body>
+</html>
