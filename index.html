@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>XOX Game</title>
+  <title>Animated Tic-Tac-Toe with Confetti</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Arial', sans-serif;
-      background: radial-gradient(circle, #ffafbd, #ffc3a0, #a1c4fd, #c2e9fb);
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at center, #ff758c, #ff7eb3, #ff89d6);
       height: 100vh;
       display: flex;
       flex-direction: column;
@@ -18,174 +18,169 @@
     }
 
     h1 {
-      font-size: 3rem;
+      font-size: 3.5rem;
       color: white;
-      text-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+      text-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
       animation: glow 2s infinite alternate;
     }
 
     @keyframes glow {
       from {
-        text-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+        text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5);
       }
       to {
-        text-shadow: 4px 4px 20px rgba(255, 255, 255, 0.8);
+        text-shadow: 0 8px 30px rgba(255, 255, 255, 0.9);
       }
     }
 
-    .start-button {
-      padding: 15px 50px;
-      font-size: 1.5rem;
+    h2 {
       color: white;
-      background: linear-gradient(90deg, #ff758c, #ff7eb3);
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: transform 0.3s ease;
-      animation: bounce 1.5s infinite alternate;
+      font-size: 1.2rem;
+      margin-top: -10px;
     }
 
-    .start-button:hover {
-      transform: scale(1.1);
+    .game-wrapper {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
     }
 
-    @keyframes bounce {
-      from {
-        transform: translateY(0);
-      }
-      to {
-        transform: translateY(-10px);
-      }
+    .scoreboard {
+      display: flex;
+      gap: 20px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      color: white;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     }
 
     .game-board {
       display: grid;
-      grid-template-columns: repeat(3, 100px);
-      grid-template-rows: repeat(3, 100px);
-      gap: 15px;
-      margin: 20px auto;
-      opacity: 0;
-      transform: scale(0);
-      transition: opacity 1s, transform 1s;
-    }
-
-    .game-board.active {
-      opacity: 1;
-      transform: scale(1);
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      width: 90%;
+      max-width: 450px;
+      aspect-ratio: 1 / 1;
     }
 
     .cell {
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2rem;
+      font-size: 3rem;
       font-weight: bold;
-      background: white;
-      color: #444;
-      border: 3px solid #ddd;
-      border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-      cursor: pointer;
-      transition: transform 0.3s ease, background 0.5s ease;
+      color: #fff;
+      transition: transform 0.4s, box-shadow 0.4s, background 0.4s;
     }
 
     .cell:hover {
       transform: scale(1.1);
-      background: #ffecd2;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
     }
 
     .cell.taken {
       pointer-events: none;
+      background: linear-gradient(135deg, #fbc2eb, #a18cd1);
+    }
+
+    .cell.winning {
+      background: linear-gradient(135deg, #84fab0, #8fd3f4);
       animation: pulse 1s infinite alternate;
     }
 
     @keyframes pulse {
       from {
-        transform: scale(1);
+        box-shadow: 0 4px 20px rgba(0, 255, 127, 0.8);
       }
       to {
-        transform: scale(1.05);
+        box-shadow: 0 8px 30px rgba(0, 255, 127, 1);
       }
     }
 
-    .result-bar {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
+    .controls {
+      margin-top: 20px;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
+      gap: 20px;
+    }
+
+    .button {
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      font-weight: bold;
       color: white;
-      text-align: center;
-      z-index: 9999;
-    }
-
-    .result-bar h1 {
-      font-size: 4rem;
-      margin: 20px 0;
-      animation: title-glow 2s infinite alternate;
-    }
-
-    @keyframes title-glow {
-      from {
-        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-      }
-      to {
-        text-shadow: 0 0 30px rgba(255, 255, 255, 1);
-      }
-    }
-
-    .replay-button {
-      padding: 15px 50px;
-      font-size: 1.5rem;
-      background: linear-gradient(45deg, #74ebd5, #acb6e5);
-      color: white;
+      background: linear-gradient(90deg, #89f7fe, #66a6ff);
       border: none;
-      border-radius: 50px;
+      border-radius: 25px;
       cursor: pointer;
-      transition: transform 0.3s ease;
+      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s, background 0.3s;
     }
 
-    .replay-button:hover {
+    .button:hover {
       transform: scale(1.1);
+      background: linear-gradient(90deg, #66a6ff, #89f7fe);
+    }
+
+    .message {
+      margin-top: 15px;
+      font-size: 1.5rem;
+      color: white;
+      text-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h1>XOX Game</h1>
-  <button class="start-button" id="startButton">Start Game</button>
-  <div class="game-board" id="gameBoard">
-    <div class="cell" data-index="0"></div>
-    <div class="cell" data-index="1"></div>
-    <div class="cell" data-index="2"></div>
-    <div class="cell" data-index="3"></div>
-    <div class="cell" data-index="4"></div>
-    <div class="cell" data-index="5"></div>
-    <div class="cell" data-index="6"></div>
-    <div class="cell" data-index="7"></div>
-    <div class="cell" data-index="8"></div>
-  </div>
-  <div class="result-bar" id="resultBar">
-    <h1 id="resultMessage"></h1>
-    <button class="replay-button" id="replayButton">Replay</button>
+  <h1>✨ Tic-Tac-Toe</h1>
+  <h2>by JEYARAM (shiva..)</h2>
+  <button class="button" id="startGameButton">Start Game</button>
+  <div class="game-wrapper" id="gameWrapper">
+    <div class="scoreboard">
+      🥰: <span id="player1Score">0</span>
+      ❤️: <span id="player2Score">0</span>
+      Draws: <span id="draws">0</span>
+    </div>
+    <div class="game-board" id="gameBoard"></div>
+    <div class="message" id="gameMessage"></div>
+    <div class="controls">
+      <button class="button" id="resetScores">Reset Scores</button>
+      <button class="button" id="restartGame">Restart Game</button>
+    </div>
+     <div class="footer">
+      <p>&copy; 2024 DESIGN by RAMU_THE_KING</p>
+    </div>
+    
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script>
-    const startButton = document.getElementById("startButton");
-    const gameBoard = document.getElementById("gameBoard");
-    const resultBar = document.getElementById("resultBar");
-    const resultMessage = document.getElementById("resultMessage");
-    const replayButton = document.getElementById("replayButton");
-    const cells = Array.from(document.querySelectorAll(".cell"));
+    const startGameButton = document.getElementById("startGameButton");
+    const gameWrapper = document.getElementById("gameWrapper");
 
-    let currentPlayer = "🥰";
-    let boardState = Array(9).fill(null);
-    let isGameActive = true;
+    startGameButton.addEventListener("click", () => {
+      gameWrapper.style.display = "flex";
+      startGameButton.style.display = "none";
+    });
+
+    // Existing JavaScript logic remains unchanged
+    const gameBoard = document.getElementById("gameBoard");
+    const gameMessage = document.getElementById("gameMessage");
+    const scoreBoard = {
+      player1: document.getElementById("player1Score"),
+      player2: document.getElementById("player2Score"),
+      draws: document.getElementById("draws"),
+    };
+    const resetScoresButton = document.getElementById("resetScores");
+    const restartGameButton = document.getElementById("restartGame");
 
     const winningCombinations = [
       [0, 1, 2],
@@ -195,62 +190,96 @@
       [1, 4, 7],
       [2, 5, 8],
       [0, 4, 8],
-      [2, 4, 6]
+      [2, 4, 6],
     ];
 
-    startButton.addEventListener("click", () => {
-      startButton.style.display = "none";
-      gameBoard.classList.add("active");
-    });
+    let boardState = Array(9).fill(null);
+    let currentPlayer = "🥰";
+    let isGameActive = true;
+    let scores = JSON.parse(localStorage.getItem("scores")) || { player1: 0, player2: 0, draws: 0 };
 
-    cells.forEach(cell => {
-      cell.addEventListener("click", () => {
-        const index = cell.getAttribute("data-index");
+    const playSound = (type) => {
+      const sound = new Audio(type === "click" ? "click.mp3" : "win.mp3");
+      sound.play();
+    };
 
-        if (!boardState[index] && isGameActive) {
-          boardState[index] = currentPlayer;
-          cell.textContent = currentPlayer;
-          cell.classList.add("taken");
-          checkWinner();
-          currentPlayer = currentPlayer === "🥰" ? "❤️" : "🥰";
-        }
+    const updateScores = () => {
+      scoreBoard.player1.textContent = scores.player1;
+      scoreBoard.player2.textContent = scores.player2;
+      scoreBoard.draws.textContent = scores.draws;
+      localStorage.setItem("scores", JSON.stringify(scores));
+    };
+
+    const resetBoard = () => {
+      boardState.fill(null);
+      gameBoard.innerHTML = "";
+      currentPlayer = "🥰";
+      isGameActive = true;
+      gameMessage.textContent = "";
+      createBoard();
+    };
+
+    const createBoard = () => {
+      boardState.forEach((_, index) => {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.dataset.index = index;
+        cell.addEventListener("click", () => handleMove(index, cell));
+        gameBoard.appendChild(cell);
       });
-    });
+    };
 
-    replayButton.addEventListener("click", () => {
-      resetGame();
-    });
-
-    function checkWinner() {
+    const checkWinner = () => {
       for (const combination of winningCombinations) {
         const [a, b, c] = combination;
         if (boardState[a] && boardState[a] === boardState[b] && boardState[a] === boardState[c]) {
-          showResult(`${boardState[a]} Wins!`);
+          isGameActive = false;
+          playSound("win");
+          combination.forEach((index) =>
+            document.querySelector(`.cell[data-index="${index}"]`).classList.add("winning")
+          );
+          gameMessage.textContent = `${boardState[a]} wins!`;
+          boardState[a] === "🥰" ? scores.player1++ : scores.player2++;
+          updateScores();
+          confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+          });
           return;
         }
       }
 
-      if (boardState.every(cell => cell)) {
-        showResult("It's a Draw!");
+      if (boardState.every((cell) => cell)) {
+        playSound("draw");
+        gameMessage.textContent = "It's a draw!";
+        scores.draws++;
+        updateScores();
       }
-    }
+    };
 
-    function showResult(message) {
-      isGameActive = false;
-      resultMessage.textContent = message;
-      resultBar.style.display = "flex";
-    }
+    const handleMove = (index, cell) => {
+      if (isGameActive && !boardState[index]) {
+        playSound("click");
+        boardState[index] = currentPlayer;
+        cell.textContent = currentPlayer;
+        cell.classList.add("taken");
+        checkWinner();
+        currentPlayer = currentPlayer === "🥰" ? "❤️" : "🥰";
+      }
+    };
 
-    function resetGame() {
-      boardState.fill(null);
-      cells.forEach(cell => {
-        cell.textContent = "";
-        cell.classList.remove("taken");
-      });
-      currentPlayer = "🥰";
-      isGameActive = true;
-      resultBar.style.display = "none";
-    }
+    resetScoresButton
+.addEventListener("click", () => {
+      scores = { player1: 0, player2: 0, draws: 0 };
+      updateScores();
+      resetBoard();
+    });
+
+    restartGameButton.addEventListener("click", resetBoard);
+
+    updateScores();
+    createBoard();
   </script>
 </body>
 </html>
