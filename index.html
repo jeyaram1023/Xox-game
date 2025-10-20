@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Animated Tic-Tac-Toe with Confetti</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Responsive Tic-Tac-Toe with Music</title>
+
   <style>
     body {
       margin: 0;
@@ -18,25 +19,24 @@
     }
 
     h1 {
-      font-size: 3.5rem;
+      font-size: clamp(2rem, 5vw, 3.5rem);
       color: white;
       text-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
       animation: glow 2s infinite alternate;
+      margin-bottom: 5px;
+      text-align: center;
     }
 
     @keyframes glow {
-      from {
-        text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5);
-      }
-      to {
-        text-shadow: 0 8px 30px rgba(255, 255, 255, 0.9);
-      }
+      from { text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5); }
+      to { text-shadow: 0 8px 30px rgba(255, 255, 255, 0.9); }
     }
 
     h2 {
       color: white;
-      font-size: 1.2rem;
-      margin-top: -10px;
+      font-size: clamp(1rem, 3vw, 1.2rem);
+      margin-top: 0;
+      text-align: center;
     }
 
     .game-wrapper {
@@ -48,14 +48,16 @@
 
     .scoreboard {
       display: flex;
-      gap: 20px;
+      gap: 10px;
       padding: 10px 20px;
       background: rgba(255, 255, 255, 0.2);
       border-radius: 20px;
       color: white;
-      font-size: 1.5rem;
-      margin-bottom: 20px;
+      font-size: clamp(1rem, 3vw, 1.5rem);
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
     .game-board {
@@ -63,7 +65,7 @@
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
       width: 90%;
-      max-width: 450px;
+      max-width: 420px;
       aspect-ratio: 1 / 1;
     }
 
@@ -71,50 +73,37 @@
       background: linear-gradient(135deg, #ff9a9e, #fad0c4);
       border: none;
       border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 3rem;
+      font-size: clamp(2rem, 8vw, 3rem);
       font-weight: bold;
       color: #fff;
       transition: transform 0.4s, box-shadow 0.4s, background 0.4s;
     }
 
-    .cell:hover {
-      transform: scale(1.1);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-    }
-
-    .cell.taken {
-      pointer-events: none;
-      background: linear-gradient(135deg, #fbc2eb, #a18cd1);
-    }
-
-    .cell.winning {
-      background: linear-gradient(135deg, #84fab0, #8fd3f4);
-      animation: pulse 1s infinite alternate;
-    }
+    .cell:hover { transform: scale(1.05); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); }
+    .cell.taken { pointer-events: none; background: linear-gradient(135deg, #fbc2eb, #a18cd1); }
+    .cell.winning { background: linear-gradient(135deg, #84fab0, #8fd3f4); animation: pulse 1s infinite alternate; }
 
     @keyframes pulse {
-      from {
-        box-shadow: 0 4px 20px rgba(0, 255, 127, 0.8);
-      }
-      to {
-        box-shadow: 0 8px 30px rgba(0, 255, 127, 1);
-      }
+      from { box-shadow: 0 4px 20px rgba(0, 255, 127, 0.8); }
+      to { box-shadow: 0 8px 30px rgba(0, 255, 127, 1); }
     }
 
     .controls {
-      margin-top: 20px;
+      margin-top: 15px;
       display: flex;
-      gap: 20px;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
     .button {
-      padding: 15px 30px;
-      font-size: 1.2rem;
+      padding: 12px 25px;
+      font-size: clamp(0.9rem, 2vw, 1.2rem);
       font-weight: bold;
       color: white;
       background: linear-gradient(90deg, #89f7fe, #66a6ff);
@@ -125,59 +114,122 @@
       transition: transform 0.3s, background 0.3s;
     }
 
-    .button:hover {
-      transform: scale(1.1);
-      background: linear-gradient(90deg, #66a6ff, #89f7fe);
-    }
+    .button:hover { transform: scale(1.1); background: linear-gradient(90deg, #66a6ff, #89f7fe); }
 
     .message {
-      margin-top: 15px;
-      font-size: 1.5rem;
+      margin-top: 10px;
+      font-size: clamp(1rem, 3vw, 1.5rem);
       color: white;
       text-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
       font-weight: bold;
+      text-align: center;
+    }
+
+    .footer {
+      margin-top: 10px;
+      color: white;
+      font-size: clamp(0.8rem, 2vw, 1rem);
+      text-align: center;
+    }
+
+    /* Floating Mute/Unmute Button */
+    #toggleMusic {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background: radial-gradient(circle at center, #66a6ff, #0044ff);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 1.8rem;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #toggleMusic:hover {
+      transform: scale(1.1);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    @media (max-width: 768px) {
+      .game-board { max-width: 320px; }
+      #toggleMusic { width: 55px; height: 55px; font-size: 1.6rem; bottom: 15px; right: 15px; }
+    }
+
+    @media (max-width: 480px) {
+      .game-board { max-width: 280px; gap: 8px; }
+      #toggleMusic { width: 50px; height: 50px; font-size: 1.4rem; bottom: 12px; right: 12px; }
     }
   </style>
 </head>
 <body>
   <h1>✨ Tic-Tac-Toe</h1>
   <h2>by JEYARAM (shiva..)</h2>
+
   <button class="button" id="startGameButton">Start Game</button>
+
+  <audio id="backgroundMusic" src="background.mp3" loop></audio>
+
   <div class="game-wrapper" id="gameWrapper">
     <div class="scoreboard">
       🥰: <span id="player1Score">0</span>
       ❤️: <span id="player2Score">0</span>
       Draws: <span id="draws">0</span>
     </div>
+
     <div class="game-board" id="gameBoard"></div>
     <div class="message" id="gameMessage"></div>
+
     <div class="controls">
       <button class="button" id="resetScores">Reset Scores</button>
       <button class="button" id="restartGame">Restart Game</button>
     </div>
-     <div class="footer">
+
+    <div class="footer">
       <p>&copy; 2024 DESIGN by RAMU_THE_KING</p>
     </div>
-    
   </div>
+
+  <button id="toggleMusic">🔊</button>
 
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script>
     const startGameButton = document.getElementById("startGameButton");
     const gameWrapper = document.getElementById("gameWrapper");
+    const bgMusic = document.getElementById("backgroundMusic");
+    const toggleMusic = document.getElementById("toggleMusic");
 
     startGameButton.addEventListener("click", () => {
       gameWrapper.style.display = "flex";
       startGameButton.style.display = "none";
+      bgMusic.volume = 0.5;
+      bgMusic.play();
     });
 
-    // Existing JavaScript logic remains unchanged
+    let musicPlaying = true;
+    toggleMusic.addEventListener("click", () => {
+      if (musicPlaying) {
+        bgMusic.pause();
+        toggleMusic.textContent = "🔇";
+      } else {
+        bgMusic.play();
+        toggleMusic.textContent = "🔊";
+      }
+      musicPlaying = !musicPlaying;
+    });
+
     const gameBoard = document.getElementById("gameBoard");
     const gameMessage = document.getElementById("gameMessage");
     const scoreBoard = {
       player1: document.getElementById("player1Score"),
       player2: document.getElementById("player2Score"),
-      draws: document.getElementById("draws"),
+      draws: document.getElementById("draws")
     };
     const resetScoresButton = document.getElementById("resetScores");
     const restartGameButton = document.getElementById("restartGame");
@@ -190,7 +242,7 @@
       [1, 4, 7],
       [2, 5, 8],
       [0, 4, 8],
-      [2, 4, 6],
+      [2, 4, 6]
     ];
 
     let boardState = Array(9).fill(null);
@@ -199,8 +251,12 @@
     let scores = JSON.parse(localStorage.getItem("scores")) || { player1: 0, player2: 0, draws: 0 };
 
     const playSound = (type) => {
-      const sound = new Audio(type === "click" ? "click.mp3" : "win.mp3");
-      sound.play();
+      let sound;
+      if (type === "click") sound = new Audio("click.mp3");
+      else if (type === "win") sound = new Audio("win.mp3");
+      else if (type === "draw") sound = new Audio("draw.mp3");
+      else if (type === "turn") sound = new Audio("turn.mp3");
+      if (sound) sound.play();
     };
 
     const updateScores = () => {
@@ -241,15 +297,10 @@
           gameMessage.textContent = `${boardState[a]} wins!`;
           boardState[a] === "🥰" ? scores.player1++ : scores.player2++;
           updateScores();
-          confetti({
-            particleCount: 150,
-            spread: 70,
-            origin: { y: 0.6 },
-          });
+          confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
           return;
         }
       }
-
       if (boardState.every((cell) => cell)) {
         playSound("draw");
         gameMessage.textContent = "It's a draw!";
@@ -265,12 +316,12 @@
         cell.textContent = currentPlayer;
         cell.classList.add("taken");
         checkWinner();
+        if (isGameActive) playSound("turn");
         currentPlayer = currentPlayer === "🥰" ? "❤️" : "🥰";
       }
     };
 
-    resetScoresButton
-.addEventListener("click", () => {
+    resetScoresButton.addEventListener("click", () => {
       scores = { player1: 0, player2: 0, draws: 0 };
       updateScores();
       resetBoard();
